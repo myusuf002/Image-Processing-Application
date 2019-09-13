@@ -4,7 +4,7 @@ from .forms import ImageForm
 from PIL import Image as Pil
 import os
 SIZE_NOW = (0, 0)
-TEMPORARY_IMAGE = "/media/tmp/temporary_image.jpg"
+TEMPORARY_IMAGE = "/static/tmp/temporary_image.jpg"
 # Create your views here.
 def viewIndex(request):
         if request.method == 'POST':
