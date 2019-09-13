@@ -4,7 +4,7 @@ from .forms import ImageForm
 from PIL import Image as Pil
 import os
 SIZE_NOW = (0, 0)
-TEMPORARY_IMAGE = "/static/tmp/temporary_image.jpg"
+TEMPORARY_IMAGE = "/tmp/temporary_image.jpg"
 
 # Create your views here.
 def viewIndex(request):
@@ -24,7 +24,7 @@ def viewIndex(request):
 def viewImage(request, id):
     global SIZE_NOW
     global TEMPORARY_IMAGE
-    if not os.path.exists("static/tmp/"): os.mkdir("static/tmp/")
+    if not os.path.exists("tmp/"): os.mkdir("tmp/")
     
     if os.path.exists(TEMPORARY_IMAGE[1:]):
         os.path.exists(TEMPORARY_IMAGE[1:])
@@ -53,7 +53,7 @@ def viewImage(request, id):
 def viewZoomOutImage(request, id):
     global SIZE_NOW
     global TEMPORARY_IMAGE
-    if not os.path.exists("static/tmp/"): os.mkdir("static/tmp/")
+    if not os.path.exists("tmp/"): os.mkdir("tmp/")
     
     image = get_object_or_404(Image, pk=id)
     image_url = image.image.url
@@ -83,7 +83,7 @@ def viewZoomOutImage(request, id):
 def viewZoomInImage(request, id):
     global SIZE_NOW
     global TEMPORARY_IMAGE
-    if not os.path.exists("static/tmp/"): os.mkdir("static/tmp/")
+    if not os.path.exists("tmp/"): os.mkdir("tmp/")
 
     image = get_object_or_404(Image, pk=id)
     image_url = image.image.url
@@ -114,7 +114,7 @@ def viewZoomInImage(request, id):
 def viewFlipVerticalImage(request, id):
     global SIZE_NOW
     global TEMPORARY_IMAGE
-    if not os.path.exists("static/tmp/"): os.mkdir("static/tmp/")
+    if not os.path.exists("tmp/"): os.mkdir("tmp/")
 
     image = get_object_or_404(Image, pk=id)
     image_url = image.image.url
@@ -141,7 +141,7 @@ def viewFlipVerticalImage(request, id):
 def viewFlipHorizontalImage(request, id):
     global SIZE_NOW
     global TEMPORARY_IMAGE
-    if not os.path.exists("static/tmp/"): os.mkdir("static/tmp/")
+    if not os.path.exists("tmp/"): os.mkdir("tmp/")
 
     image = get_object_or_404(Image, pk=id)
     image_url = image.image.url
@@ -168,7 +168,7 @@ def viewFlipHorizontalImage(request, id):
 def viewRotateImage(request, id, degree):
     global SIZE_NOW
     global TEMPORARY_IMAGE
-    if not os.path.exists("static/tmp/"): os.mkdir("static/tmp/")
+    if not os.path.exists("tmp/"): os.mkdir("tmp/")
 
     image = get_object_or_404(Image, pk=id)
     image_url = image.image.url
