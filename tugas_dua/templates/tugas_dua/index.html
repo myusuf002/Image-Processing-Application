@@ -1,0 +1,50 @@
+{% extends 'base.html' %} 
+{% load static %}
+
+{% block css %}
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div class="col-md-12 mb-5">Navbar</div>
+        <div class="col-md-8">
+            <h3>Daftar Citra</h3>
+        </div>
+        <div class="col-md-4">
+            <form method="POST"  enctype="multipart/form-data">
+                {% csrf_token %}
+                <div class="form-row">
+                    <div class="col-8">
+                        {{ form.image }}
+                    </div>
+                    <div class="col-4 text-right">
+                        <button type="submit" class="btn btn-info py-2">Tambah</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+        {% for object in images %}
+
+            <div class="col-md-4 m-3 mx-auto">
+
+                <div class="bg-info border-info rounded-top p-1">
+                    <h5 class="text-center text-light mt-1">{{ object.image.url|slice:"11:" }}</h5>
+                </div>
+                <a href="image/view/{{ object.id }}">
+                    <div class="bg-light p-3 text-center border border-info rounded-bottom">
+                        <img class="img-fluid" src="{{ object.image.url }}">
+                    </div>
+                </a>
+            </div>
+
+        {% endfor %}
+    </div>
+</div>
+
+{% endblock %}
+
+{% block js %}
+<script>
+</script>
+{% endblock %}

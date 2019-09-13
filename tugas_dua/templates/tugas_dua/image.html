@@ -1,0 +1,90 @@
+{% extends 'base.html' %} 
+{% load static %}
+
+{% block css %}
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div class="col-md-12 mb-5">Navbar</div>
+
+        <div class="col-md-8 mb-3 mx-auto">
+            <div class="bg-light p-3 text-center border border-info rounded">
+                <div class="table-responsive" style="height:500px">
+                    <img id="image" src="{{ image_url }}" style="min-width:500px">
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4 mb-3 mx-auto">
+            <!-- Basic Information -->
+            <div class="bg-info border-info rounded-top p-1">
+                <div class="row">
+                    <div class="col-8"><h6 class="text-light mt-1 px-3 ">{{ image_name }}</h6></div>
+                    <div class="col text-right"><a href="/image/view/{{ image_id }}" class="btn btn-sm btn-light">Reset</a></div>
+                </div>
+
+            </div>
+            <div class="p-3 border border-info rounded-bottom">
+                <div class="row">
+                    <div class="col-4">Size</div>
+                    <div class="col-1">:</div>
+                    <div class="col">{{ image_width }}x{{ image_width }} px</div>
+                </div>
+                <div class="row">
+                    <div class="col-4">Format</div>
+                    <div class="col-1">:</div>
+                    <div class="col">{{ image_format }}</div>
+                </div>
+                <div class="row">
+                    <div class="col-4">Mode</div>
+                    <div class="col-1">:</div>
+                    <div class="col">{{ image_mode }}</div>
+                </div>
+            </div>
+            <hr>
+
+            <!-- Basic Operation -->
+            <div class="bg-info border-info rounded-top p-1">
+                <h6 class="text-light mt-1 px-3">Operasi Dasar</h6>
+            </div>
+            <div class="p-3 border border-info rounded-bottom">
+                <div class="row">
+                    <div class="col"><a href="/image/view/{{ image_id }}/zoom-out" class="btn btn-block btn-info mb-2">Zoom Out</a></div>
+                    <div class="col"><a href="/image/view/{{ image_id }}/zoom-in" class="btn btn-block btn-info mb-2">Zoom In</a></div>
+                </div>
+                <hr>
+                <div class="row">
+                    <div class="col"><a href="/image/view/{{ image_id }}/flip-vertical" class="btn btn-block btn-info mb-2">Flip Vertical</a></div>
+                    <div class="col"><a href="/image/view/{{ image_id }}/flip-horizontal" class="btn btn-block btn-info mb-2">Flip Horizontal</a></div>
+                </div>
+                <hr>
+                <div class="row">
+                    <div class="col"><button class="btn btn-block btn-info mb-2">Cut</button></div>
+                    <div class="col"><button class="btn btn-block btn-info mb-2">Paste</button></div>
+                </div>
+                <hr>
+                <div class="row">
+                    <div class="col">
+                        <a id="rotate" href="/image/view/{{ image_id }}/rotate/90" class="btn btn-block btn-info mb-2">Rotate</a>
+                    </div>
+                    <div class="col">
+                        <input id="degree"  type="number" class="form-control" placeholder="degree" value="90" min="0" max="360">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+{% block js %}
+<script>
+    $("#degree").change(function(){
+      var degree = $("#degree").val()
+      if (degree ==""){degree = 0}
+      $("#rotate").attr('href', "/image/view/{{ image_id }}/rotate/"+degree);
+    });
+</script>
+{% endblock %}
