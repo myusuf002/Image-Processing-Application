@@ -22,11 +22,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # See https://docs.djangoproject.com/en/2.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-<<<<<<< HEAD
-SECRET_KEY = '8lhib%+$9$2bu=g^uz=mpz-ffk(g@)ykof0x@=i#14&hu41v+h'
-=======
 SECRET_KEY = 'y9_8%1iv=qsr!-kpxwy5btanpx2#mf!aim@4v_gy7r@ce#u0hc'
->>>>>>> Histogram & Color Transform
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -42,11 +38,7 @@ INSTALLED_APPS = [
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
-<<<<<<< HEAD
-    'django.contrib.staticfiles',    
-=======
     'django.contrib.staticfiles',   
->>>>>>> Histogram & Color Transform
     'tugas_dua',
 ]
 
@@ -92,10 +84,6 @@ DATABASES = {
     }
 }
 
-<<<<<<< HEAD
-
-=======
->>>>>>> Histogram & Color Transform
 prod_db  =  dj_database_url.config()
 DATABASES['default'].update(prod_db)
 
@@ -140,16 +128,8 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'assets')
 MEDIA_URL = '/assets/'
 
 STATICFILES_DIRS = (
-<<<<<<< HEAD
-    os.path.join(BASE_DIR, 'static/'),
-)
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
-
-django_heroku.settings(locals())
-=======
     os.path.join(BASE_DIR, 'static'),
 )
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 django_heroku.settings(locals())
->>>>>>> Histogram & Color Transform

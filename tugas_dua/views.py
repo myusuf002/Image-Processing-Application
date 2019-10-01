@@ -1,12 +1,6 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from .models import Image
 from .forms import ImageForm
-<<<<<<< HEAD
-from PIL import Image as Pil
-import os
-SIZE_NOW = (0, 0)
-TEMPORARY_IMAGE = "/assets/temporary_image.jpg"
-=======
 from PIL import Image as Pil, ImageOps
 import matplotlib.pyplot as plt
 
@@ -14,7 +8,6 @@ import os
 import numpy as np
 SIZE_NOW = (0, 0)
 TEMPORARY_IMAGE = "/assets/temporary_image.jpeg"
->>>>>>> Histogram & Color Transform
 
 # Create your views here.
 def viewIndex(request):
@@ -30,10 +23,6 @@ def viewIndex(request):
         }
         return render(request, 'tugas_dua/index.html', context)
 
-<<<<<<< HEAD
-
-=======
->>>>>>> Histogram & Color Transform
 def viewImage(request, id):
     global SIZE_NOW
     global TEMPORARY_IMAGE
@@ -48,11 +37,7 @@ def viewImage(request, id):
     image_url = image.image.url
     image_name = image.image.url[len("/image/img/"):]
     pil = Pil.open(image_url[1:]) # remove first / from image url
-<<<<<<< HEAD
-
-=======
 	
->>>>>>> Histogram & Color Transform
     SIZE_NOW = pil.size
     context = {
         'title': "Tugas Dua",
@@ -208,8 +193,6 @@ def viewRotateImage(request, id, degree):
         'image_mode': pil.mode,
     }
     return render(request, 'tugas_dua/image.html', context)
-<<<<<<< HEAD
-=======
     
 def viewCropImage(request, id, left, top, right, bottom):
     global SIZE_NOW
@@ -433,4 +416,3 @@ def viewHistogramImage(request, id):
     }
 
     return render(request, 'tugas_dua/histogram.html', context)
->>>>>>> Histogram & Color Transform

@@ -10,9 +10,6 @@ urlpatterns = [
     path('image/view/<id>/flip-vertical', views.viewFlipVerticalImage, name ="flip-vertical"),
     path('image/view/<id>/flip-horizontal', views.viewFlipHorizontalImage, name ="flip-horizontal"),
     path('image/view/<id>/rotate/<degree>', views.viewRotateImage, name ="rotate"),
-<<<<<<< HEAD
-]
-=======
     path('image/view/<id>/cut/<left>/<top>/<right>/<bottom>/<x>/<y>', views.viewCutImage, name ="cut"),
     path('image/view/<id>/crop/<left>/<top>/<right>/<bottom>', views.viewCropImage, name ="crop"),
     path('image/view/<id>/rgb', views.viewRGBImage, name ="rgb"),
@@ -20,4 +17,3 @@ urlpatterns = [
     path('image/view/<id>/gray', views.viewGrayImage, name ="gray"),
     path('image/view/<id>/histogram', views.viewHistogramImage, name ="histogram"),
 ]
->>>>>>> Histogram & Color Transform
