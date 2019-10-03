@@ -51,19 +51,32 @@
 						</div>
 					</div>
 				</div>
-			</div>
-            <div class="bg-light p-3 text-center border border-info rounded">
+            </div>
+            
+            <div class="row mb-1">
+                <div class="col mb-3">
+                    <a href="/image/view/{{ image_id }}/sampling" class="btn btn-block btn-info mb-2 disabled">Sampling</a>
+                </div>
+                <div class="col mb-3">
+                    <a href="/image/view/{{ image_id }}/quantization" class="btn btn-block btn-info mb-2 disabled">Quantization</a>
+                </div>
+                <div class="col mb-3">
+                    <a href="/image/view/{{ image_id }}/dithering" class="btn btn-block btn-info mb-2">Dithering</a>
+                </div>
+                <div class="col mb-3">
+                    <a href="/image/view/{{ image_id }}/halftoning" class="btn btn-block btn-info mb-2">Halftoning</a>
+                </div>
+            </div>
+            <div class="bg-light p-3 text-center border border-info rounded mb-3">
                 <div class="table-responsive" style="height:500px">
                     <img id="image" src="{{ image_url }}" style="min-width:500px">
                 </div>
-            </div>
+            </div>            
         </div>
 
         <div class="col-md-4 mb-3 mx-auto">
 			
 			<a href="/image/view/{{ image_id }}/histogram" class="btn btn-block btn-info mb-2">Histogram</a>
-			<hr>
-			<a href="/image/view/{{ image_id }}/histogram" class="btn btn-block btn-info mb-2">Filtering</a>
 			<hr>
 			
             <!-- Basic Operation -->

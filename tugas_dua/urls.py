@@ -16,4 +16,8 @@ urlpatterns = [
     path('image/view/<id>/hsv', views.viewHSVImage, name ="hsv"),
     path('image/view/<id>/gray', views.viewGrayImage, name ="gray"),
     path('image/view/<id>/histogram', views.viewHistogramImage, name ="histogram"),
+    path('image/view/<id>/sampling', views.viewImage, name ="sampling"),
+    path('image/view/<id>/quantization', views.viewImage, name ="quantization"),
+    path('image/view/<id>/dithering', views.viewDitheringImage, name ="dithering"),
+    path('image/view/<id>/halftoning', views.viewHalftoningImage, name ="halftoning"),
 ]
