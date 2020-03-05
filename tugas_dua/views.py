@@ -5,40 +5,62 @@ from PIL import Image as Pil, ImageOps
 import matplotlib.pyplot as plt
 
 import os
+import glob
+
 import numpy as np
-SIZE_NOW = (0, 0)
-TEMPORARY_IMAGE = "/assets/temporary_image.jpeg"
+import datetime
 
 # Create your views here.
 def viewIndex(request):
-        if request.method == 'POST':
-            form = ImageForm(request.POST, request.FILES)
-            if form.is_valid(): form.save()
-        else: form = ImageForm
+    if 'code' in request.session: 
+        temp = request.session['code']
+        # del request.session['code']
+        my_dir = "./assets/"
+        for fname in os.listdir(my_dir):
+            if fname.startswith(temp):
+                print(fname)
+                os.remove(os.path.join(my_dir, fname)) 
 
-        context = {
-            'title': "Tugas Dua",
-            'images': Image.objects.all(),
-            'form': form
-        }
-        return render(request, 'tugas_dua/index.html', context)
+    if 'temporary' in request.session: del request.session['temporary']
+    if 'size' in request.session: del request.session['size']
 
-def viewImage(request, id):
-    global SIZE_NOW
-    global TEMPORARY_IMAGE
-    if not os.path.exists("static/"): os.mkdir("static/")
-    
-    if os.path.exists(TEMPORARY_IMAGE[1:]):
-        os.path.exists(TEMPORARY_IMAGE[1:])
-        os.remove(TEMPORARY_IMAGE[1:])
+    if request.method == 'POST':
+        form = ImageForm(request.POST, request.FILES)
+        if form.is_valid(): form.save()
+    else: form = ImageForm
 
+    context = {
+        'title': "Tugas Dua",
+        'images': Image.objects.all(),
+        'form': form
+    }
+    return render(request, 'tugas_dua/index.html', context)
+
+def viewImage(request, id):    
+    if 'code' in request.session: 
+        temp = request.session['code']
+        # del request.session['code']
+        my_dir = "./assets/"
+        for fname in os.listdir(my_dir):
+            if fname.startswith(temp):
+                print(fname)
+                os.remove(os.path.join(my_dir, fname)) 
+
+    if 'temporary' in request.session: del request.session['temporary']
+    if 'size' in request.session: del request.session['size']
+
+    code = str(datetime.datetime.now()).replace(':', '-').replace('.', '-') 
+    request.session['code'] = code
+    request.session['temporary'] = "/assets/" + code + ".jpeg"
+    print("new", code)
 
     image = get_object_or_404(Image, pk=id)
     image_url = image.image.url
     image_name = image.image.url[len("/image/img/"):]
     pil = Pil.open(image_url[1:]) # remove first / from image url
 	
-    SIZE_NOW = pil.size
+    request.session['size'] = pil.size
+    
     context = {
         'title': "Tugas Dua",
         'image_id': image.id,
@@ -53,52 +75,48 @@ def viewImage(request, id):
     return render(request, 'tugas_dua/image.html', context)
 
 def viewZoomOutImage(request, id):
-    global SIZE_NOW
-    global TEMPORARY_IMAGE
     if not os.path.exists("static/"): os.mkdir("static/")
     
     image = get_object_or_404(Image, pk=id)
     image_url = image.image.url
     image_name = image.image.url[len("/image/img/"):]
-    if os.path.exists(TEMPORARY_IMAGE[1:]): image_url = TEMPORARY_IMAGE
+    if os.path.exists(request.session['temporary'][1:]): image_url = request.session['temporary']
     pil = Pil.open(image_url[1:]) # remove first / from image url
 
-    if(SIZE_NOW[0]//2 > 1 and SIZE_NOW[1]//2 > 1):
-        resize = (SIZE_NOW[0]//2, SIZE_NOW[1]//2)
+    if(request.session['size'][0]//2 > 1 and request.session['size'][1]//2 > 1):
+        resize = (request.session['size'][0]//2, request.session['size'][1]//2)
         pil = pil.resize(resize)
-        image_url = TEMPORARY_IMAGE
+        image_url = request.session['temporary']
         pil.save(image_url[1:])
-        SIZE_NOW = pil.size
+        request.session['size'] = pil.size
     else: return redirect('/image/view/'+id)
     context = {
         'title': "Tugas Dua",
         'image_id': image.id,
         'image_url': image_url,
         'image_name': image_name,
-        'image_width': SIZE_NOW[0],
-        'image_height': SIZE_NOW[1],
+        'image_width': request.session['size'][0],
+        'image_height': request.session['size'][1],
         'image_format': pil.format,
         'image_mode': pil.mode,
     }
     return render(request, 'tugas_dua/image.html', context)
 
 def viewZoomInImage(request, id):
-    global SIZE_NOW
-    global TEMPORARY_IMAGE
     if not os.path.exists("static/"): os.mkdir("static/")
 
     image = get_object_or_404(Image, pk=id)
     image_url = image.image.url
     image_name = image.image.url[len("/image/img/"):]
-    # if os.path.exists(TEMPORARY_IMAGE[1:]): image_url = TEMPORARY_IMAGE
+    if os.path.exists(request.session['temporary'][1:]): image_url = request.session['temporary']
     pil = Pil.open(image_url[1:])  # remove first / from image url
 
-    if (SIZE_NOW[0] * 2 < 10000 and SIZE_NOW[1] * 2 < 10000):
-        resize = (SIZE_NOW[0] * 2, SIZE_NOW[1] * 2)
+    if (request.session['size'][0] * 2 < 10000 and request.session['size'][1] * 2 < 10000):
+        resize = (request.session['size'][0] * 2, request.session['size'][1] * 2)
         pil = pil.resize(resize)
-        image_url = TEMPORARY_IMAGE
+        image_url = request.session['temporary']
         pil.save(image_url[1:])
-        SIZE_NOW = pil.size
+        request.session['size'] = pil.size
     else: return redirect('/image/view/' + id)
 
     context = {
@@ -106,25 +124,23 @@ def viewZoomInImage(request, id):
         'image_id': image.id,
         'image_url': image_url,
         'image_name': image_name,
-        'image_width': SIZE_NOW[0],
-        'image_height': SIZE_NOW[1],
+        'image_width': request.session['size'][0],
+        'image_height': request.session['size'][1],
         'image_format': pil.format,
         'image_mode': pil.mode,
     }
     return render(request, 'tugas_dua/image.html', context)
 
 def viewFlipVerticalImage(request, id):
-    global SIZE_NOW
-    global TEMPORARY_IMAGE
     if not os.path.exists("static/"): os.mkdir("static/")
 
     image = get_object_or_404(Image, pk=id)
     image_url = image.image.url
     image_name = image.image.url[len("/image/img/"):]
-    if os.path.exists(TEMPORARY_IMAGE[1:]): image_url = TEMPORARY_IMAGE
+    if os.path.exists(request.session['temporary'][1:]): image_url = request.session['temporary']
     pil = Pil.open(image_url[1:])  # remove first / from image url
     pil = pil.transpose(Pil.FLIP_LEFT_RIGHT)
-    image_url = TEMPORARY_IMAGE
+    image_url = request.session['temporary']
     pil.save(image_url[1:])
 
 
@@ -133,25 +149,23 @@ def viewFlipVerticalImage(request, id):
         'image_id': image.id,
         'image_url': image_url,
         'image_name': image_name,
-        'image_width': SIZE_NOW[0],
-        'image_height': SIZE_NOW[1],
+        'image_width': request.session['size'][0],
+        'image_height': request.session['size'][1],
         'image_format': pil.format,
         'image_mode': pil.mode,
     }
     return render(request, 'tugas_dua/image.html', context)
 
 def viewFlipHorizontalImage(request, id):
-    global SIZE_NOW
-    global TEMPORARY_IMAGE
     if not os.path.exists("static/"): os.mkdir("static/")
 
     image = get_object_or_404(Image, pk=id)
     image_url = image.image.url
     image_name = image.image.url[len("/image/img/"):]
-    if os.path.exists(TEMPORARY_IMAGE[1:]): image_url = TEMPORARY_IMAGE
+    if os.path.exists(request.session['temporary'][1:]): image_url = request.session['temporary']
     pil = Pil.open(image_url[1:])  # remove first / from image url
     pil = pil.transpose(Pil.FLIP_TOP_BOTTOM)
-    image_url = TEMPORARY_IMAGE
+    image_url = request.session['temporary']
     pil.save(image_url[1:])
 
 
@@ -160,25 +174,23 @@ def viewFlipHorizontalImage(request, id):
         'image_id': image.id,
         'image_url': image_url,
         'image_name': image_name,
-        'image_width': SIZE_NOW[0],
-        'image_height': SIZE_NOW[1],
+        'image_width': request.session['size'][0],
+        'image_height': request.session['size'][1],
         'image_format': pil.format,
         'image_mode': pil.mode,
     }
     return render(request, 'tugas_dua/image.html', context)
 
 def viewRotateImage(request, id, degree):
-    global SIZE_NOW
-    global TEMPORARY_IMAGE
     if not os.path.exists("static/"): os.mkdir("static/")
 
     image = get_object_or_404(Image, pk=id)
     image_url = image.image.url
     image_name = image.image.url[len("/image/img/"):]
-    if os.path.exists(TEMPORARY_IMAGE[1:]): image_url = TEMPORARY_IMAGE
+    if os.path.exists(request.session['temporary'][1:]): image_url = request.session['temporary']
     pil = Pil.open(image_url[1:])  # remove first / from image url
     pil = pil.rotate(int(degree))
-    image_url = TEMPORARY_IMAGE
+    image_url = request.session['temporary']
     pil.save(image_url[1:])
 
 
@@ -187,26 +199,24 @@ def viewRotateImage(request, id, degree):
         'image_id': image.id,
         'image_url': image_url,
         'image_name': image_name,
-        'image_width': SIZE_NOW[0],
-        'image_height': SIZE_NOW[1],
+        'image_width': request.session['size'][0],
+        'image_height': request.session['size'][1],
         'image_format': pil.format,
         'image_mode': pil.mode,
     }
     return render(request, 'tugas_dua/image.html', context)
     
 def viewCropImage(request, id, left, top, right, bottom):
-    global SIZE_NOW
-    global TEMPORARY_IMAGE
     if not os.path.exists("static/"): os.mkdir("static/")
 
     image = get_object_or_404(Image, pk=id)
     image_url = image.image.url
     image_name = image.image.url[len("/image/img/"):]
-    if os.path.exists(TEMPORARY_IMAGE[1:]): image_url = TEMPORARY_IMAGE
+    if os.path.exists(request.session['temporary'][1:]): image_url = request.session['temporary']
     pil = Pil.open(image_url[1:])  # remove first / from image url
     crop_size = (int(left), int(top), int(right), int(bottom))
     pil = pil.crop(crop_size)
-    image_url = TEMPORARY_IMAGE
+    image_url = request.session['temporary']
     pil.save(image_url[1:])
 
 
@@ -215,22 +225,20 @@ def viewCropImage(request, id, left, top, right, bottom):
         'image_id': image.id,
         'image_url': image_url,
         'image_name': image_name,
-        'image_width': SIZE_NOW[0],
-        'image_height': SIZE_NOW[1],
+        'image_width': request.session['size'][0],
+        'image_height': request.session['size'][1],
         'image_format': pil.format,
         'image_mode': pil.mode,
     }
     return render(request, 'tugas_dua/image.html', context)
 
 def viewCutImage(request, id, left, top, right, bottom, x, y):
-    global SIZE_NOW
-    global TEMPORARY_IMAGE
     if not os.path.exists("static/"): os.mkdir("static/")
 
     image = get_object_or_404(Image, pk=id)
     image_url = image.image.url
     image_name = image.image.url[len("/image/img/"):]
-    if os.path.exists(TEMPORARY_IMAGE[1:]): image_url = TEMPORARY_IMAGE
+    if os.path.exists(request.session['temporary'][1:]): image_url = request.session['temporary']
     pil = Pil.open(image_url[1:])  # remove first / from image url
     cut_size = (int(left), int(top), int(right), int(bottom))
     cut_pil = pil.crop(cut_size)
@@ -244,7 +252,7 @@ def viewCutImage(request, id, left, top, right, bottom, x, y):
     paste_dst = (int(x), int(y))
     pil.paste(cut_pil, paste_dst)
     
-    image_url = TEMPORARY_IMAGE
+    image_url = request.session['temporary']
     pil.save(image_url[1:])
 
 
@@ -253,25 +261,23 @@ def viewCutImage(request, id, left, top, right, bottom, x, y):
         'image_id': image.id,
         'image_url': image_url,
         'image_name': image_name,
-        'image_width': SIZE_NOW[0],
-        'image_height': SIZE_NOW[1],
+        'image_width': request.session['size'][0],
+        'image_height': request.session['size'][1],
         'image_format': pil.format,
         'image_mode': pil.mode,
     }
     return render(request, 'tugas_dua/image.html', context)
     
 def viewRGBImage(request, id):
-    global SIZE_NOW
-    global TEMPORARY_IMAGE
     if not os.path.exists("static/"): os.mkdir("static/")
 
     image = get_object_or_404(Image, pk=id)
     image_url = image.image.url
     image_name = image.image.url[len("/image/img/"):]
-    if os.path.exists(TEMPORARY_IMAGE[1:]): image_url = TEMPORARY_IMAGE
+    if os.path.exists(request.session['temporary'][1:]): image_url = request.session['temporary']
     pil = Pil.open(image_url[1:]).convert("RGB")  # remove first / from image url
     
-    image_url = TEMPORARY_IMAGE
+    image_url = request.session['temporary']
     pil.save(image_url[1:])
 
 
@@ -280,25 +286,23 @@ def viewRGBImage(request, id):
         'image_id': image.id,
         'image_url': image_url,
         'image_name': image_name,
-        'image_width': SIZE_NOW[0],
-        'image_height': SIZE_NOW[1],
+        'image_width': request.session['size'][0],
+        'image_height': request.session['size'][1],
         'image_format': pil.format,
         'image_mode': pil.mode,
     }
     return render(request, 'tugas_dua/image.html', context)
 
 def viewHSVImage(request, id):
-    global SIZE_NOW
-    global TEMPORARY_IMAGE
     if not os.path.exists("static/"): os.mkdir("static/")
 
     image = get_object_or_404(Image, pk=id)
     image_url = image.image.url
     image_name = image.image.url[len("/image/img/"):]
-    if os.path.exists(TEMPORARY_IMAGE[1:]): image_url = TEMPORARY_IMAGE
+    if os.path.exists(request.session['temporary'][1:]): image_url = request.session['temporary']
     pil = Pil.open(image_url[1:]).convert("HSV")  # remove first / from image url
     
-    image_url = TEMPORARY_IMAGE
+    image_url = request.session['temporary']
     pil.save(image_url[1:])
 
 
@@ -307,25 +311,23 @@ def viewHSVImage(request, id):
         'image_id': image.id,
         'image_url': image_url,
         'image_name': image_name,
-        'image_width': SIZE_NOW[0],
-        'image_height': SIZE_NOW[1],
+        'image_width': request.session['size'][0],
+        'image_height': request.session['size'][1],
         'image_format': pil.format,
         'image_mode': pil.mode,
     }
     return render(request, 'tugas_dua/image.html', context)
 
 def viewGrayImage(request, id):
-    global SIZE_NOW
-    global TEMPORARY_IMAGE
     if not os.path.exists("static/"): os.mkdir("static/")
 
     image = get_object_or_404(Image, pk=id)
     image_url = image.image.url
     image_name = image.image.url[len("/image/img/"):]
-    if os.path.exists(TEMPORARY_IMAGE[1:]): image_url = TEMPORARY_IMAGE
+    if os.path.exists(request.session['temporary'][1:]): image_url = request.session['temporary']
     pil = Pil.open(image_url[1:]).convert("L")   # remove first / from image url
     
-    image_url = TEMPORARY_IMAGE
+    image_url = request.session['temporary']
     pil.save(image_url[1:])
 
 
@@ -334,21 +336,19 @@ def viewGrayImage(request, id):
         'image_id': image.id,
         'image_url': image_url,
         'image_name': image_name,
-        'image_width': SIZE_NOW[0],
-        'image_height': SIZE_NOW[1],
+        'image_width': request.session['size'][0],
+        'image_height': request.session['size'][1],
         'image_format': pil.format,
         'image_mode': pil.mode,
     }
     return render(request, 'tugas_dua/image.html', context)
 
 def viewHistogramImage(request, id):
-    global SIZE_NOW
-    global TEMPORARY_IMAGE
     if not os.path.exists("static/"): os.mkdir("static/")
     
-    if os.path.exists(TEMPORARY_IMAGE[1:]):
-        os.path.exists(TEMPORARY_IMAGE[1:])
-        os.remove(TEMPORARY_IMAGE[1:])
+    if os.path.exists(request.session['temporary'][1:]):
+        os.path.exists(request.session['temporary'][1:])
+        os.remove(request.session['temporary'][1:])
 
 
     image = get_object_or_404(Image, pk=id)
@@ -361,26 +361,26 @@ def viewHistogramImage(request, id):
     fig, ax = plt.subplots()
     ax.bar(range(256), hs[:256], color='r', alpha=0.5)
     # ax.axis([0, 255, 0, max(hs)])
-    red_url = "/assets/temporary_red_"+id+".jpeg"
+    red_url = "/assets/"+request.session['code']+"_red.jpeg"
     fig.savefig(red_url[1:])
     
     fig, ax = plt.subplots()
     ax.bar(range(256), hs[:256:2*256], color='g', alpha=0.4)
     # ax.axis([0, 255, 0, max(hs)])
-    green_url = "/assets/temporary_green_"+id+".jpeg"
+    green_url = "/assets/"+request.session['code']+"_green.jpeg"
     fig.savefig(green_url[1:])
     
     fig, ax = plt.subplots()
     ax.bar(range(256), hs[2*256:], color='b', alpha=0.3)
     # ax.axis([0, 255, 0, max(hs)])
-    blue_url = "/assets/temporary_blue_"+id+".jpeg"
+    blue_url = "/assets/"+request.session['code']+"_blue.jpeg"
     fig.savefig(blue_url[1:])
     
     fig, ax = plt.subplots()
     ax.bar(range(256), hs[:256], color='r', alpha=0.5)
     ax.bar(range(256), hs[:256:2*256], color='g', alpha=0.4)
     ax.bar(range(256), hs[2*256:], color='b', alpha=0.3)
-    rgb_url = "/assets/temporary_rgb_"+id+".jpeg"
+    rgb_url = "/assets/"+request.session['code']+"_rgb.jpeg"
     fig.savefig(rgb_url[1:])
     
     hs = pil.convert("L").histogram()
@@ -388,7 +388,7 @@ def viewHistogramImage(request, id):
     fig, ax = plt.subplots()
     ax.bar(range(len(hs)), hs, color='gray')
     # ax.axis([0, 255, 0, max(hs)])
-    gray_url = "/assets/temporary_gray_"+id+".jpeg"
+    gray_url = "/assets/"+request.session['code']+"_gray.jpeg"
     fig.savefig(gray_url[1:])
     
     eq = ImageOps.equalize(pil)
@@ -398,10 +398,10 @@ def viewHistogramImage(request, id):
     ax.bar(range(256), hs[:256], color='r', alpha=0.5)
     ax.bar(range(256), hs[:256:2*256], color='g', alpha=0.4)
     ax.bar(range(256), hs[2*256:], color='b', alpha=0.3)
-    eq_url = "/assets/temporary_eq_"+id+".jpeg"
+    eq_url = "/assets/"+request.session['code']+"_eq.jpeg"
     fig.savefig(eq_url[1:])
     
-    SIZE_NOW = pil.size
+    request.session['size'] = pil.size
     context = {
         'title': "Tugas Dua",
         'image_id': image.id,
@@ -503,19 +503,17 @@ def convert_halftoning(image):
     return new
 
 def viewHalftoningImage(request, id):
-    global SIZE_NOW
-    global TEMPORARY_IMAGE
     if not os.path.exists("static/"): os.mkdir("static/")
 
     image = get_object_or_404(Image, pk=id)
     image_url = image.image.url
     image_name = image.image.url[len("/image/img/"):]
-    if os.path.exists(TEMPORARY_IMAGE[1:]): image_url = TEMPORARY_IMAGE
+    if os.path.exists(request.session['temporary'][1:]): image_url = request.session['temporary']
     pil = Pil.open(image_url[1:]) # remove first / from image url
     
     # Convert to Halftoning and save
     pil = convert_halftoning(pil)
-    image_url = TEMPORARY_IMAGE
+    image_url = request.session['temporary']
     pil.save(image_url[1:])
 
 
@@ -524,8 +522,8 @@ def viewHalftoningImage(request, id):
         'image_id': image.id,
         'image_url': image_url,
         'image_name': image_name,
-        'image_width': SIZE_NOW[0],
-        'image_height': SIZE_NOW[1],
+        'image_width': request.session['size'][0],
+        'image_height': request.session['size'][1],
         'image_format': pil.format,
         'image_mode': pil.mode,
     }
@@ -591,19 +589,17 @@ def convert_dithering(image):
     return new
 
 def viewDitheringImage(request, id):
-    global SIZE_NOW
-    global TEMPORARY_IMAGE
     if not os.path.exists("static/"): os.mkdir("static/")
 
     image = get_object_or_404(Image, pk=id)
     image_url = image.image.url
     image_name = image.image.url[len("/image/img/"):]
-    if os.path.exists(TEMPORARY_IMAGE[1:]): image_url = TEMPORARY_IMAGE
+    if os.path.exists(request.session['temporary'][1:]): image_url = request.session['temporary']
     pil = Pil.open(image_url[1:]) # remove first / from image url
     
     # Convert to Halftoning and save
     pil = convert_dithering(pil)
-    image_url = TEMPORARY_IMAGE
+    image_url = request.session['temporary']
     pil.save(image_url[1:])
 
 
@@ -612,8 +608,8 @@ def viewDitheringImage(request, id):
         'image_id': image.id,
         'image_url': image_url,
         'image_name': image_name,
-        'image_width': SIZE_NOW[0],
-        'image_height': SIZE_NOW[1],
+        'image_width': request.session['size'][0],
+        'image_height': request.session['size'][1],
         'image_format': pil.format,
         'image_mode': pil.mode,
     }
